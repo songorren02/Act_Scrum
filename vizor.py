@@ -4,6 +4,7 @@
 import subprocess
 import sys
 import ipaddress
+import hashlib
 
 #Menú inicial
 def menu_inicial():
@@ -23,6 +24,7 @@ def menu_inicial():
 #Pedir input del usuario
 def input_opcion():
     while(True):
+        #Comprobar idioma
         if(idioma == "ESP"):
             opcion = int(input("Que herramienta quieres utilizar? (1,2,3): "))
         else:
@@ -53,18 +55,21 @@ def elegir_idioma():
         print("Error: Idioma no válido")
 
 def usar_nmap():
-    """Versión mínima y segura de nmap: ejecuta `nmap -p <puertos> <target>` y muestra la salida."""
+    #Versión mínima y segura de nmap: ejecuta `nmap -p <puertos> <target>` y muestra la salida.
+    #Comprobar el idioma y definir los inputs
     if idioma == "ESP":
         target = input("Introduce host o red a escanear (ej: 192.168.1.1 o 192.168.1.0/24): ").strip()
         ports = input("Introduce puertos (ej: 22,80 o 1-1024) [default 1-1024]: ").strip() or "1-1024"
         running_msg = f"[+] Ejecutando: nmap -p {ports} {target}"
         err_prefix = "Error al ejecutar nmap:"
     else:
+        #Noruego
         target = input("Oppgi vert eller nettverk som skal skannes (f.eks. 192.168.1.1 eller 192.168.1.0/24): ").strip()
         ports = input("Oppgi porter (f.eks. 22,80 eller 1-1024) [standard 1-1024]: ").strip() or "1-1024"
         running_msg = f"[+] Kjører: nmap -p {ports} {target}"
         err_prefix = "Feil ved kjøring av nmap:"
 
+    #Verificación de errores
     if not target:
         if idioma == "ESP":
             print("Error: target no puede estar vacío")
@@ -80,6 +85,7 @@ def usar_nmap():
                               capture_output=True)
         # Imprimir salida estándar de nmap
         print(proc.stdout)
+
     except FileNotFoundError:
         # nmap no está instalado o no en PATH
         if idioma == "ESP":
@@ -97,10 +103,9 @@ def usar_nmap():
 
 #Ping sweep
 def usar_pingsweep():
-    """
-    Versión mínima: acepta una única IP, hace 1 ping y muestra si responde.
-    """
-
+    #Versión mínima: acepta una única IP, hace 1 ping y muestra si responde.
+    
+    #Comprobar el idioma y definir los inputs
     if idioma == "ESP":
         prompt = "Introduce una IP (ej: 192.168.1.10): "
         empty_err = "Error: target no puede estar vacío"
@@ -109,6 +114,7 @@ def usar_pingsweep():
         yes = "Host responde:"
         no = "No responde:"
     else:
+        #Noruego
         prompt = "Oppgi en IP (f.eks. 192.168.1.10): "
         empty_err = "Feil: mål kan ikke være tomt"
         invalid_err = "Feil: ugyldig IP"
@@ -149,11 +155,10 @@ def usar_pingsweep():
 
 #Calcular sha256 de un archivo
 def calcular_sha256():
-    """
-    Pide la ruta de un archivo, calcula su SHA-256 leyendo por bloques
-    (para soportar archivos grandes) y muestra el hash en hexadecimal.
-    """
-    import hashlib
+    #Pide la ruta de un archivo, calcula su SHA-256 leyendo por bloques
+    #(para soportar archivos grandes) y muestra el hash en hexadecimal.
+    
+    #Comprobar idiomas
     if idioma == "ESP":
         prompt = "Introduce la ruta del archivo para calcular su SHA-256: "
         empty_err = "Error: ruta no puede estar vacía"
@@ -162,13 +167,14 @@ def calcular_sha256():
         read_err = "Error al leer el archivo:"
         result_msg = "SHA-256:"
     else:
+        #Noruego
         prompt = "Oppgi filstien for å beregne SHA-256: "
         empty_err = "Feil: sti kan ikke være tom"
         not_found = "Feil: fil ikke funnet"
         perm_err = "Feil: tilgang nektet ved lesing av filen"
         read_err = "Feil ved lesing av filen:"
         result_msg = "SHA-256:"
-
+    
     path = input(prompt).strip()
     if not path:
         print(empty_err)
