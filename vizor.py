@@ -2,6 +2,8 @@
 # ---- VIZOR: Herramienta para red team ---- #
 
 import subprocess
+import sys
+import ipaddress
 
 #Menú inicial
 def menu_inicial():
@@ -98,9 +100,6 @@ def usar_pingsweep():
     """
     Versión mínima: acepta una única IP, hace 1 ping y muestra si responde.
     """
-    import subprocess
-    import sys
-    import ipaddress
 
     if idioma == "ESP":
         prompt = "Introduce una IP (ej: 192.168.1.10): "
@@ -148,6 +147,47 @@ def usar_pingsweep():
     except Exception:
         print(f"{no} {target}")
 
+#Calcular sha256 de un archivo
+def calcular_sha256():
+    """
+    Pide la ruta de un archivo, calcula su SHA-256 leyendo por bloques
+    (para soportar archivos grandes) y muestra el hash en hexadecimal.
+    """
+    import hashlib
+    if idioma == "ESP":
+        prompt = "Introduce la ruta del archivo para calcular su SHA-256: "
+        empty_err = "Error: ruta no puede estar vacía"
+        not_found = "Error: archivo no encontrado"
+        perm_err = "Error: permiso denegado al leer el archivo"
+        read_err = "Error al leer el archivo:"
+        result_msg = "SHA-256:"
+    else:
+        prompt = "Oppgi filstien for å beregne SHA-256: "
+        empty_err = "Feil: sti kan ikke være tom"
+        not_found = "Feil: fil ikke funnet"
+        perm_err = "Feil: tilgang nektet ved lesing av filen"
+        read_err = "Feil ved lesing av filen:"
+        result_msg = "SHA-256:"
+
+    path = input(prompt).strip()
+    if not path:
+        print(empty_err)
+        return
+
+    try:
+        h = hashlib.sha256()
+        with open(path, "rb") as f:
+            # Leer en bloques de 64 KiB
+            for chunk in iter(lambda: f.read(65536), b""):
+                h.update(chunk)
+        print(f"{result_msg} {h.hexdigest()}")
+    except FileNotFoundError:
+        print(not_found)
+    except PermissionError:
+        print(perm_err)
+    except Exception as e:
+        print(f"{read_err} {e}")
+
 
 #Main
 idioma = elegir_idioma()
@@ -162,5 +202,5 @@ elif(herramienta == 2):
     usar_pingsweep()
 elif(herramienta == 3):
     #Calcular sha256 de un archivo
-    print()
+    calcular_sha256()
 
