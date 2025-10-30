@@ -93,6 +93,63 @@ def usar_nmap():
     except Exception as e:
         print(f"{err_prefix} {e}")
 
+#Ping sweep
+def usar_pingsweep():
+    """
+    Versión mínima: acepta una única IP, hace 1 ping y muestra si responde.
+    """
+    import subprocess
+    import sys
+    import ipaddress
+
+    if idioma == "ESP":
+        prompt = "Introduce una IP (ej: 192.168.1.10): "
+        empty_err = "Error: target no puede estar vacío"
+        invalid_err = "Error: IP no válida"
+        ping_not_found = "Error: comando ping no encontrado en el sistema"
+        yes = "Host responde:"
+        no = "No responde:"
+    else:
+        prompt = "Oppgi en IP (f.eks. 192.168.1.10): "
+        empty_err = "Feil: mål kan ikke være tomt"
+        invalid_err = "Feil: ugyldig IP"
+        ping_not_found = "Feil: ping-kommandoen ble ikke funnet på systemet"
+        yes = "Vert svarer:"
+        no = "Svarer ikke:"
+
+    target = input(prompt).strip()
+    if not target:
+        print(empty_err)
+        return
+
+    # Validar IP simple
+    try:
+        ipaddress.ip_address(target)
+    except Exception:
+        print(invalid_err)
+        return
+
+    # Comando ping básico según plataforma
+    if sys.platform.startswith("win"):
+        cmd = ["ping", "-n", "1", target]
+    else:
+        cmd = ["ping", "-c", "1", target]
+
+    try:
+        proc = subprocess.run(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=2)
+        if proc.returncode == 0:
+            print(f"{yes} {target}")
+        else:
+            print(f"{no} {target}")
+    except FileNotFoundError:
+        print(ping_not_found)
+    except subprocess.TimeoutExpired:
+        print(f"{no} {target}")
+    except Exception:
+        print(f"{no} {target}")
+
+
+#Main
 idioma = elegir_idioma()
 menu_inicial()
 herramienta = input_opcion()
@@ -100,4 +157,10 @@ herramienta = input_opcion()
 if(herramienta == 1):
     #Usar nmap
     usar_nmap()
+elif(herramienta == 2):
+    #Usar pingsweep
+    usar_pingsweep()
+elif(herramienta == 3):
+    #Calcular sha256 de un archivo
+    print()
 
