@@ -1,4 +1,7 @@
+#!/usr/bin/env python3
 # ---- VIZOR: Herramienta para red team ---- #
+
+import subprocess
 
 #Menú inicial
 def menu_inicial():
@@ -47,9 +50,54 @@ def elegir_idioma():
 
         print("Error: Idioma no válido")
 
+def usar_nmap():
+    """Versión mínima y segura de nmap: ejecuta `nmap -p <puertos> <target>` y muestra la salida."""
+    if idioma == "ESP":
+        target = input("Introduce host o red a escanear (ej: 192.168.1.1 o 192.168.1.0/24): ").strip()
+        ports = input("Introduce puertos (ej: 22,80 o 1-1024) [default 1-1024]: ").strip() or "1-1024"
+        running_msg = f"[+] Ejecutando: nmap -p {ports} {target}"
+        err_prefix = "Error al ejecutar nmap:"
+    else:
+        target = input("Oppgi vert eller nettverk som skal skannes (f.eks. 192.168.1.1 eller 192.168.1.0/24): ").strip()
+        ports = input("Oppgi porter (f.eks. 22,80 eller 1-1024) [standard 1-1024]: ").strip() or "1-1024"
+        running_msg = f"[+] Kjører: nmap -p {ports} {target}"
+        err_prefix = "Feil ved kjøring av nmap:"
 
+    if not target:
+        if idioma == "ESP":
+            print("Error: target no puede estar vacío")
+        else:
+            print("Feil: mål kan ikke være tomt")
+        return
+
+    print(running_msg)
+    try:
+        proc = subprocess.run(["nmap", "-p", ports, target],
+                              check=True,
+                              text=True,
+                              capture_output=True)
+        # Imprimir salida estándar de nmap
+        print(proc.stdout)
+    except FileNotFoundError:
+        # nmap no está instalado o no en PATH
+        if idioma == "ESP":
+            print("Error: nmap no encontrado. Instálalo con apt install nmap")
+        else:
+            print("Feil: nmap ikke funnet. Installer med apt install nmap")
+    except subprocess.CalledProcessError as e:
+        print(f"{err_prefix} (exit {e.returncode})")
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr)
+    except Exception as e:
+        print(f"{err_prefix} {e}")
 
 idioma = elegir_idioma()
 menu_inicial()
 herramienta = input_opcion()
+
+if(herramienta == 1):
+    #Usar nmap
+    usar_nmap()
 
